@@ -1,49 +1,74 @@
-import React, { useState, useEffect } from 'react';
-import {StyleSheet, View, Dimensions, Text, Image} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {StyleSheet, View, Dimensions, Text, Image, TextInput, Alert} from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
-import { x1rpc } from '../api/index';
+import {x1rpc} from '../api/index';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoidGFidWxhd2ViIiwiYSI6ImNrcGE2NDc4YzBxemMybm54amYxNWhkeHcifQ.wY90Me9rzVCWpdXBfpUdtQ',
 );
 const ANNOTATION_SIZE = 30;
-export const Map = () =>{
-    const [appState, setAppState] = useState({});
-    const [marks, setMark] = useState([]);
-    const [adress, setAdress] = useState('Адрес');
-    useEffect(() => {
-        x1rpc('client.data.secure', 'read', {
-          model: 'INFO_RECIPIENT',
+export const Map = () => {
+  const [data, serDaata] = useState([]);
+  const [marks, setMark] = useState([]);
+  const [input, setInput] = useState('');
+  const [date, setDate] = useState({});
+
+  const readData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('userOrg');
+      if (value !== null) {
+        setInput(value);
+        x1rpc('client.data.secure', 'getChartDataAndGeoPosition', {
+          ORGFK: value,
           msource: 'toop',
           withDisplay: true,
-        }).then(response => {
-          const allResponse = response;
-          setAppState(allResponse)
         })
-    }, [setAppState])
-
-    for(var i = 0; i < appState.total; i++) {
-        //console.log(appState.items[i].GEO_POSITION_LIVE);
-        if (appState.items[i].GEO_POSITION_LIVE != null) {
-            marks[i] = appState.items[i].GEO_POSITION_LIVE;
-        } else {
-            continue
-        }
+          .then(response => {
+            console.log(response);
+            const allResponse = response;
+            serDaata(allResponse);
+          })
+          .catch(e => console.log(e));
+      }
+    } catch (e) {
+      alert(e);
     }
+  };
+  useEffect(() => {
+    readData();
+  }, []);
 
+  const setMarks = () => {
+    //console.log(data[0].DATE_PLAN)
+    if(date.length > 0) {
+      marks.splice(0, marks.length);
+      data.forEach((item, i) => {
+        date == item.DATE_PLAN && item.GEO_POSITION_LIVE != null ? marks[i] = item.GEO_POSITION_LIVE : console.log('e')
+      })
+    } else {
+      data.forEach((item, i) => {
+        item.GEO_POSITION_LIVE != null ? marks[i] = item.GEO_POSITION_LIVE : console.log('e')
+      })
+    }
+  }
+
+  setMarks();
   return (
     <View>
-      <Text style={styles.adres}>{adress}</Text>
-    
-    <MapboxGL.MapView style={styles.map} logoEnabled={false}>
-      <MapboxGL.Camera zoomLevel={11} centerCoordinate={[28.3493, 57.8136]} />
+      <TextInput style={styles.inputText} onChangeText={setDate} placeholder={'Введите запланированную дату'}/>
       <View>
-      {marks.map((marker, i) => (
+      <MapboxGL.MapView style={styles.map} logoEnabled={false}>
+        <MapboxGL.Camera zoomLevel={11} centerCoordinate={[28.3493, 57.8136]} />
+        <View>
+        {marks.map((marker, i) => (
         <MapboxGL.PointAnnotation
           key={i}
           id={i.toString()}
-          coordinate={[ +marker.split(',')[1], +marker.split(',')[0] ]}
+          coordinate={[+marker.split(',')[1], +marker.split(',')[0]]}
           selected={false}
-          onSelected={() =>setAdress('Адрес: ' + appState.items[i].STREET_WORK)}>
+          onSelected={() =>
+            Alert.alert('Адресс', 'Адрес: ' + data[i].concat)
+          }>
             <View style={styles.annotationContainer}>
           <Image
             source={require('../assets/marker.png') }
@@ -52,21 +77,22 @@ export const Map = () =>{
         </View>
           </MapboxGL.PointAnnotation>
       ))}
+        </View>
+      </MapboxGL.MapView>
       </View>
-    </MapboxGL.MapView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   map: {
-    height: Dimensions.get('window').height,
+    height: Dimensions.get('window').height - 105,
   },
   adres: {
-    marginTop: 30,
+    marginTop: 20,
     paddingLeft: 10,
     fontSize: 20,
-    color: 'black'
+    color: 'black',
   },
   annotationContainer: {
     alignItems: 'center',
@@ -75,4 +101,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     width: ANNOTATION_SIZE,
   },
+  inputText: {
+    borderColor: 'black',
+    borderWidth: 1,
+  }
 });

@@ -4,21 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Colors, common} from '../styles'
 import {connect} from "react-redux";
 import {getRecipient, RESET_STATE} from '../store/actions';
-import { Input, Text, Button, Spinner, Avatar, Icon, MenuItem, Menu as Nav, Card} from '@ui-kitten/components';
+import {Text, Icon, MenuItem, Menu as Nav, Card} from '@ui-kitten/components';
 import CookieManager from '@react-native-cookies/cookies';
-
-/*const getMyStringValue = async () => {
-  console.log('Done.')
-  try {
-    const b = await AsyncStorage.getItem('user')
-    console.log(b)
-    return b
-  } catch(e) {
-    // read error
-  }
-}
-const y = getMyStringValue();*/
-
 
 class Menu extends Component {
   constructor(props) {
@@ -26,16 +13,28 @@ class Menu extends Component {
     this.state = {
       isLoading: false
     };
+    this.userData = {
+      name: '',
+      secondname: '',
+      middlename: ''
+    };
     this.getAsync()
   }
-  getAsync = async () => {
-    try {
-      const value = await AsyncStorage.getItem('user')
-      this.setState = {value}
-    } catch(e) {
-
+  async getAsync() {
+    try{
+      let user = await AsyncStorage.getItem('user');
+      let userJson = await JSON.parse(user);
+      console.log(userJson);
+      this.userData = {
+        name: userJson.name,
+        secondname: userJson.secondname,
+        middlename: userJson.middlename
+      };
+    } catch (e) {
+      console.log(e)
     }
   }
+
   async getData() {
     try {
       await this.props.getRecipient();
@@ -45,7 +44,6 @@ class Menu extends Component {
       this.setState({isLoading: false});
     }
   }
-
   componentDidMount() {
     this.props.navigation.addListener('focus', () => {
       if (!Object.prototype.hasOwnProperty.call(this.props.recipient, 'SYS_GUID')) {
@@ -63,15 +61,18 @@ class Menu extends Component {
             <Icon name="person-outline" fill={Colors.muted} style={{ height: 180 }} />
             <View style={{ alignSelf: 'center'}}>
               <Text category="h6" style={{ color: Colors.primary }}>
-                {'admin'} {'admin'} {'admin'}
+                {this.userData.name} {this.userData.secondname} {this.userData.middlename}
               </Text>
             </View>
           </Card>
         </View>
         <View style={common.section}>
           <Nav>
-            <MenuItem title={evaProps => <Text {...evaProps }>Карта</Text>}
+            <MenuItem title={evaProps => <Text {...evaProps }>Календарь</Text>}
                       accessoryLeft={(props) => (<Icon {...props} name='calendar-outline'/>)}
+                      onPress={() => this.props.navigation.navigate('Kalendar')}/>
+            <MenuItem title={evaProps => <Text {...evaProps }>Карта</Text>}
+                      accessoryLeft={(props) => (<Icon {...props} name='map-outline'/>)}
                       onPress={() => this.props.navigation.navigate('Map')}/>
             <MenuItem title={evaProps => <Text {...evaProps }>Выход</Text>}
                       accessoryLeft={(props) => (<Icon {...props} name='power-outline'/>)}

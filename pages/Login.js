@@ -42,6 +42,7 @@ class Login extends Component {
     this.setState({'loading': true})
 
     auth(this.state.login, this.state.password).then(response => {
+      
       this.props.navigation.navigate('Menu')
     }).catch((error) => {
       this.setState({'loading': false})

@@ -18,8 +18,8 @@ import {Provider} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
 import {store, persistor} from './store/store';
 import { Colors } from './styles'
-import {Map} from './pages/Map'
-
+import { Map } from './pages/Map'
+import { Kalendar } from './pages/Kalendar'
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -39,7 +39,8 @@ const App = () => {
                 <Stack.Screen name="Splash" component={ Splash } options={{ headerShown: false }} />
                 <Stack.Screen name="Login" component={ Login } options={{ headerShown: false }} />
                 <Stack.Screen name="Menu" component={Menu} options={{headerShown: false, title: 'Личный кабинет'}}/>
-                <Stack.Screen name="Map" component={Map} options={{headerShown: true, title: 'Map'}}/>
+                <Stack.Screen name="Kalendar" component={ Kalendar } options={{headerShown: true, title: 'Календарь'}}/>
+                <Stack.Screen name="Map" component={Map} options={{headerShown: true, title: 'Карта'}}/>
               </Stack.Navigator>
             </NavigationContainer>
           </PersistGate>

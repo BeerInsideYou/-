@@ -33,7 +33,8 @@ export function auth (login, password) {
           if (response.data.membership) {
             response.data.membership.map(item => { userdata.role.push(item.groupfk) })
           }
-          getAsynsStorage('user', userdata.username);
+          getAsynsStorage('user', JSON.stringify({name: userdata.username, middlename: response.data.middlename, secondname: response.data.secondname}));
+          getAsynsStorage('userOrg', response.data.orgfk);
           getAsynsStorage('role', JSON.stringify(userdata.role))
           return Promise.resolve(userdata)
         }
