@@ -12,7 +12,9 @@ export const Map = () => {
   const [marks, setMark] = useState([]);
   const [input, setInput] = useState('');
   const [date, setDate] = useState({});
+  const [userPosition, setuserPosition] = useState('')
 
+  console.log(userPosition)
   const readData = async () => {
     try {
       const value = await AsyncStorage.getItem('userOrg');
@@ -51,34 +53,42 @@ export const Map = () => {
       })
     }
   }
-
   setMarks();
+
+
   return (
     <View>
       <TextInput style={styles.inputText} onChangeText={setDate} placeholder={'Введите запланированную дату'}/>
       <View>
-      <MapboxGL.MapView style={styles.map} logoEnabled={false}>
-        <MapboxGL.Camera zoomLevel={11} centerCoordinate={[28.3493, 57.8136]} />
-        <View>
-        {marks.map((marker, i) => (
-        <MapboxGL.PointAnnotation
-          key={i}
-          id={i.toString()}
-          coordinate={[+marker.split(',')[1], +marker.split(',')[0]]}
-          selected={false}
-          onSelected={() =>
-            Alert.alert('Адресс', 'Адрес: ' + data[i].concat)
-          }>
-            <View style={styles.annotationContainer}>
-          <Image
-            source={require('../assets/marker.png') }
-            style={{ width: ANNOTATION_SIZE, height: ANNOTATION_SIZE}}
-          />
-        </View>
-          </MapboxGL.PointAnnotation>
-      ))}
-        </View>
-      </MapboxGL.MapView>
+        <MapboxGL.MapView style={styles.map} logoEnabled={false} showUserLocation={true} minDisplacement={10}>
+          <MapboxGL.UserLocation onUpdate = {setuserPosition} />
+          <MapboxGL.Camera zoomLevel={11} centerCoordinate={[28.3493, 57.8136]} />
+          <View>
+            {marks.map((marker, i) => (
+              <MapboxGL.PointAnnotation
+                key={i}
+                id={i.toString()}
+                coordinate={[+marker.split(',')[1], +marker.split(',')[0]]}
+                selected={false}
+                onSelected={() =>
+                  Alert.alert('Адресс', 'Адрес: ' + data[i].concat,
+                    [{
+                      text: 'Отмена',
+                      onPress: () => {
+                        return null;
+                      },
+                    },
+                    {
+                      text: 'Выполнено',
+                      onPress: () => {
+                        
+                    },
+                  },
+                ],)
+              }/>
+            ))}
+          </View>
+        </MapboxGL.MapView>
       </View>
     </View>
   );

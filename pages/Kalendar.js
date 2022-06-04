@@ -63,6 +63,7 @@ export const Kalendar = () => {
   const readData = async () => {
     try {
       const value = await AsyncStorage.getItem('userOrg');
+
       if (value !== null) {
         setInput(value);
         x1rpc('client.data.secure', 'getChartDataAndGeoPosition', {
@@ -71,7 +72,7 @@ export const Kalendar = () => {
           withDisplay: true,
         })
           .then(response => {
-            console.log(response);
+            //console.log(response);
             const allResponse = response;
             setData(allResponse);
           })
@@ -81,6 +82,7 @@ export const Kalendar = () => {
       alert(e);
     }
   };
+
   useEffect(() => {
     readData();
   }, []);
@@ -101,18 +103,21 @@ export const Kalendar = () => {
         markedDates={getDateObj()}
         onDayPress={day => {
           let dataObj = Object.assign({}, data)
-
+          let musAdress = [];
+          let dataOrder = [];
           //console.log(dataObj[0].DATE_PLAN.split('.').reverse().join('-'))
 
           for (var i = 0; i < data.length; i++) {
            if (dataObj[i].DATE_PLAN.split('.').reverse().join('-') == day.dateString) {
-             console.log(data[i])
-             Alert.alert(
-               'Данные о клиенте',
-               `Адресс: ${data[i].concat}`
-               )
+            musAdress.push(dataObj[i].concat);
+            dataOrder.push(dataObj[i].NAME)
+             console.log(musAdress)
            }
           }
+          Alert.alert(
+            'Информация по этому дню',
+            `${musAdress.map((adress, i) => `Адрес: ${adress}\nСоциальная услуга: ${dataOrder[i]}\n\n`)}`
+            )
         }}>
       </Calendar>
     </View>
