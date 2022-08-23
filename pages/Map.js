@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {useState, useEffect} from 'react';
 import {StyleSheet, View, Dimensions, Text, Image, TextInput, Alert} from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
@@ -6,20 +7,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoidGFidWxhd2ViIiwiYSI6ImNrcGE2NDc4YzBxemMybm54amYxNWhkeHcifQ.wY90Me9rzVCWpdXBfpUdtQ',
 );
-const ANNOTATION_SIZE = 30;
 export const Map = () => {
   const [data, serDaata] = useState([]);
   const [marks, setMark] = useState([]);
-  const [input, setInput] = useState('');
+  //const [input, setInput] = useState('');
   const [date, setDate] = useState({});
   const [userPosition, setuserPosition] = useState('')
 
-  console.log(userPosition)
   const readData = async () => {
     try {
       const value = await AsyncStorage.getItem('userOrg');
       if (value !== null) {
-        setInput(value);
+        //setInput(value);
         x1rpc('client.data.secure', 'getChartDataAndGeoPosition', {
           ORGFK: value,
           msource: 'toop',
@@ -45,24 +44,36 @@ export const Map = () => {
     if(date.length > 0) {
       marks.splice(0, marks.length);
       data.forEach((item, i) => {
-        date == item.DATE_PLAN && item.GEO_POSITION_LIVE != null ? marks[i] = item.GEO_POSITION_LIVE : console.log('e')
+        date == item.DATE_PLAN && item.GEO_POSITION_LIVE != null ? marks[i] = item.GEO_POSITION_LIVE : false
       })
     } else {
       data.forEach((item, i) => {
-        item.GEO_POSITION_LIVE != null ? marks[i] = item.GEO_POSITION_LIVE : console.log('e')
+        item.GEO_POSITION_LIVE != null ? marks[i] = item.GEO_POSITION_LIVE : false
       })
     }
   }
   setMarks();
-
-
+  //console.log(userPosition.coords.latitude.toString().concat(',',userPosition.coords.longitude.toString()))
   return (
     <View>
-      <TextInput style={styles.inputText} onChangeText={setDate} placeholder={'Введите запланированную дату'}/>
+      <TextInput
+        style={styles.inputText}
+        onChangeText={setDate}
+        placeholder={'Введите запланированную дату'}
+      />
       <View>
-        <MapboxGL.MapView style={styles.map} logoEnabled={false} showUserLocation={true} minDisplacement={10}>
-          <MapboxGL.UserLocation onUpdate = {setuserPosition} />
-          <MapboxGL.Camera zoomLevel={11} centerCoordinate={[28.3493, 57.8136]} />
+        <MapboxGL.MapView 
+          style={styles.map} 
+          logoEnabled={false} 
+          showUserLocation={true} 
+          minDisplacement={10}>
+          <MapboxGL.UserLocation
+            onUpdate = {setuserPosition}
+          />
+          <MapboxGL.Camera 
+            zoomLevel={11} 
+            centerCoordinate={[28.3493, 57.8136]}
+          />
           <View>
             {marks.map((marker, i) => (
               <MapboxGL.PointAnnotation
@@ -81,7 +92,15 @@ export const Map = () => {
                     {
                       text: 'Выполнено',
                       onPress: () => {
-                        
+                        x1rpc('client.data.secure', 'setChartStatus', {
+                          CHART_GUID: data[i].SYS_GUID,
+                          MARK_COMPLETE: 'done',
+                          GEO_POSITION: userPosition.coords.latitude.toString().concat(', ',userPosition.coords.longitude.toString()),
+                          msource: 'toop',
+                          withDisplay: true,
+                        }).then(response => {
+                          console.log(response);
+                        }).catch(e => console.log(e))
                     },
                   },
                 ],)
@@ -103,13 +122,6 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     fontSize: 20,
     color: 'black',
-  },
-  annotationContainer: {
-    alignItems: 'center',
-    height: ANNOTATION_SIZE,
-    justifyContent: 'center',
-    overflow: 'hidden',
-    width: ANNOTATION_SIZE,
   },
   inputText: {
     borderColor: 'black',

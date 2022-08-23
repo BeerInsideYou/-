@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {Component} from 'react';
 import {View, ActivityIndicator, StyleSheet, SafeAreaView, Alert} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -39,7 +40,7 @@ class Menu extends Component {
     try {
       await this.props.getRecipient();
     } catch (error) {
-      console.log('error');
+      console.log(error);
     } finally {
       this.setState({isLoading: false});
     }

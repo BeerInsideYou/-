@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Api, base as Apibase } from './index'
 import AsyncStorage  from '@react-native-async-storage/async-storage'
 import CookieManager from '@react-native-cookies/cookies'
@@ -39,7 +40,7 @@ export function auth (login, password) {
           return Promise.resolve(userdata)
         }
         return Promise.reject(response)
-      }).catch(e => {
+      }).catch(error => {
         return Promise.reject(new Error(error.data))
       })
     }).catch(error => {

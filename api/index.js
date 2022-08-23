@@ -1,3 +1,4 @@
+/* eslint-disable */
 import axios from 'axios';
 import CookieManager from '@react-native-cookies/cookies'
 

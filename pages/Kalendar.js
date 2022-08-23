@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
@@ -110,13 +111,13 @@ export const Kalendar = () => {
           for (var i = 0; i < data.length; i++) {
            if (dataObj[i].DATE_PLAN.split('.').reverse().join('-') == day.dateString) {
             musAdress.push(dataObj[i].concat);
-            dataOrder.push(dataObj[i].NAME)
+            dataOrder.push(dataObj[i].NAME);
              console.log(musAdress)
            }
           }
           Alert.alert(
             'Информация по этому дню',
-            `${musAdress.map((adress, i) => `Адрес: ${adress}\nСоциальная услуга: ${dataOrder[i]}\n\n`)}`
+            `${musAdress.map((adress, i) => `Адрес: ${adress}\nСоциальная услуга: ${dataOrder[i]}\n\n`)}`.replace(/,Адрес/g, 'Адрес')
             )
         }}>
       </Calendar>
